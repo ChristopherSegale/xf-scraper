@@ -5,13 +5,14 @@
 (in-package :xf-scraper)
 
 (defun make-post (author post)
-  (let ((post-author author) (post-content post))
+  (let ((post-author author)
+	(post-content (string-trim '(#\Space #\Newline #\Backspace #\Tab #\Linefeed #\Page #\Return #\Rubout) post)))
     (vector
      (lambda () post-author)
      (lambda () post-content))))
 
 (defun render-post (post)
-  (format t "User: ~A~%~%~A~%----------~%" (funcall (elt post 0)) (string-trim '(#\Space #\Newline #\Backspace #\Tab #\Linefeed #\Page #\Return #\Rubout) (funcall (elt post 1)))))
+  (format t "User: ~A~%~%~A~%----------~%" (funcall (elt post 0)) (funcall (elt post 1))))
 
 (defun main ()
   (let ((url (cadr sb-ext:*posix-argv*)))
@@ -24,9 +25,7 @@
 			       (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)))
 		 (list-length (- (length pc-list) 1))
 		 (posts
-		  (let ((l nil))
-		    (loop for i from list-length downto 0 do
-			 (push (make-post (elt author-list i) (elt pc-list i)) l)) l)))
-	    (loop for x in posts do
-		 (render-post x))))
+		  (loop for i from 0 to list-length collect
+			 (make-post (elt author-list i) (elt pc-list i)))))
+	    (mapcar #'render-post posts)))
 	(format t "~A needs first argument to be an url.~%" (car sb-ext:*posix-argv*)))))
