@@ -21,11 +21,7 @@
 	  (let* ((request (dex:get url)) (processed-content (lquery:$ (initialize request)))
 		 (pid-list (remove-if #'null (lquery:$ processed-content "article" (attr :id))))
 		 (author-list (remove-if #'null (lquery:$ processed-content "article" (attr :data-author))))
-		 (pc-list (loop for p across pid-list collect
-			       (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)))
-		 (list-length (- (length pc-list) 1))
-		 (posts
-		  (loop for i from 0 to list-length collect
-			 (make-post (elt author-list i) (elt pc-list i)))))
-	    (map 'nil #'render-post posts)))
+		 (pc-list (map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) pid-list))
+		 (posts (map 'list #'(lambda (a p) (make-post a p)) author-list pc-list)))
+	    (map nil #'render-post posts)))
 	(format t "~A needs first argument to be an url.~%" (car sb-ext:*posix-argv*)))))
