@@ -27,5 +27,5 @@
 		 (posts
 		  (loop for i from 0 to list-length collect
 			 (make-post (elt author-list i) (elt pc-list i)))))
-	    (mapcar #'render-post posts)))
+	    (map 'nil #'render-post posts)))
 	(format t "~A needs first argument to be an url.~%" (car sb-ext:*posix-argv*)))))
