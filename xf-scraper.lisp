@@ -16,10 +16,10 @@
   (let ((url (cadr sb-ext:*posix-argv*)))
     (if url
 	(progn
-	  (let* ((request (dex:get url)) (processed-content (lquery:$ (initialize request)))
-		 (pid-list (remove-if #'null (lquery:$ processed-content "article" (attr :id)))))
+	  (let* ((request (dex:get url)) (processed-content (lquery:$ (initialize request))))
 	    (mapc #'(lambda (p) (princ (funcall p))) ;;printing post
 		  (map 'list #'(lambda (a p) (make-post a p)) ;;creating post list
 		       (remove-if #'null (lquery:$ processed-content "article" (attr :data-author))) ;;getting author list
-		       (map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) pid-list))))) ;;getting post content
+		       (map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) ;;getting post content list
+			    (remove-if #'null (lquery:$ processed-content "article" (attr :id)))))))) ;;getting post id list
 	(format t "~A needs first argument to be an url.~%" (car sb-ext:*posix-argv*)))))
