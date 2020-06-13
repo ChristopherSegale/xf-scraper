@@ -17,9 +17,9 @@
     (if url
 	(progn
 	  (let* ((request (dex:get url)) (processed-content (lquery:$ (initialize request)))
-		 (pid-list (remove-if #'null (lquery:$ processed-content "article" (attr :id))))
-		 (author-list (remove-if #'null (lquery:$ processed-content "article" (attr :data-author))))
-		 (pc-list (map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) pid-list))
-		 (posts (map 'list #'(lambda (a p) (make-post a p)) author-list pc-list)))
-	    (mapc #'(lambda (p) (princ (funcall p)))  posts)))
+		 (pid-list (remove-if #'null (lquery:$ processed-content "article" (attr :id)))))
+	    (mapc #'(lambda (p) (princ (funcall p))) ;;printing post
+		  (map 'list #'(lambda (a p) (make-post a p)) ;;creating post list
+		       (remove-if #'null (lquery:$ processed-content "article" (attr :data-author))) ;;getting author list
+		       (map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) pid-list))))) ;;getting post content
 	(format t "~A needs first argument to be an url.~%" (car sb-ext:*posix-argv*)))))
