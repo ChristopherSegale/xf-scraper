@@ -12,8 +12,8 @@
      (lambda () post-author)
      (lambda () post-content))))
 
-(defun main ()
-  (let ((url (cadr sb-ext:*posix-argv*)))
+(defun main (args)
+  (let ((url (cadr args)))
     (if url
 	(let* ((request (dex:get url)) (processed-content (lquery:$ (initialize request))))
 	  (mapc #'(lambda (p) (princ (funcall p))) ;;printing post
@@ -21,4 +21,4 @@
 		     (remove-if #'null (lquery:$ processed-content "article" (attr :data-author))) ;;getting author list
 		     (map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) ;;getting post content list
 			  (remove-if #'null (lquery:$ processed-content "article" (attr :id))))))) ;;getting post id list
-	(format t "~A needs first argument to be an url.~%" (car sb-ext:*posix-argv*)))))
+	(format t "~A needs first argument to be an url.~%" (car args)))))

@@ -1,14 +1,27 @@
 BIN=xf-scraper
 LISP=sbcl
-LISPFLAGS=--no-sysinit --non-interactive
-BUILDFLAGS=--load xf-scraper.asd \
-		   --eval '(require :xf-scraper)' \
-		   --eval '(asdf:make :xf-scraper)'
+DEPS=:dexador :lquery
+BDEPS=--load xf-scraper.asd \
+      --load-system dexador \
+      --load-system lquery \
+      --require xf-scraper
+MANIFEST=manifest.txt
+MFLAGS=--no-sysinit --non-interactive \
+       --eval "(ql:quickload '($(DEPS)))" \
+       --eval '(ql:write-asdf-manifest-file \#P"$(MANIFEST)")' \
+       --eval '(exit)'
+BUILDFLAGS=--output $(BIN) \
+	   --manifest-file $(MANIFEST) \
+	   $(BDEPS) \
+	   --entry xf-scraper:main
 
 all: $(BIN)
 
-$(BIN):
-	$(LISP) $(LISPFLAGS) $(BUILDFLAGS)
+$(BIN): $(MANIFEST)
+	buildapp $(BUILDFLAGS)
+
+$(MANIFEST):
+	$(LISP) $(MFLAGS)
 
 clean:
-	rm -f $(BIN)
+	rm -f $(BIN) $(MANIFEST)
