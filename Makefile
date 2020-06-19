@@ -18,7 +18,7 @@ all: $(BIN)
 $(BIN): $(BUNDLE)
 	$(LISP) $(BUILDFLAGS)
 
-bundle:
+$(BUNDLE):
 	$(LISP) $(BNFLAGS)
 
 clean_all:
