@@ -2,7 +2,8 @@
   :author "Christopher Segale"
   :license "MIT"
   :depends-on (:dexador
-               :lquery)
+               :lquery
+	       :uiop)
   :components ((:file "xf-scraper"))
   :build-operation "program-op"
   :build-pathname "xf-scraper"

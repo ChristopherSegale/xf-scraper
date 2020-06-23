@@ -1,7 +1,7 @@
 BIN=xf-scraper
 LISP=sbcl
 BUNDLE=bundle
-LIBS=:dexador :lquery
+LIBS=:dexador :lquery :uiop
 BNFLAGS=--no-sysinit --non-interactive \
         --eval "(ql:quickload '($(LIBS)))" \
         --eval "(ql:bundle-systems '($(LIBS)) :to \"$(BUNDLE)/\")" \
@@ -10,6 +10,7 @@ BUILDFLAGS=--no-sysinit --no-userinit --non-interactive \
 	   --load "$(BUNDLE)/bundle.lisp" \
 	   --eval '(asdf:load-system :dexador)' \
 	   --eval '(asdf:load-system :lquery)' \
+	   --eval '(asdf:load-system :uiop)' \
 	   --eval '(load "xf-scraper.asd")' \
 	   --eval '(asdf:make :xf-scraper)'
 
