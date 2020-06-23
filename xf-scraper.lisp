@@ -27,10 +27,14 @@
 			  (remove-if #'null (lquery:$ ,pb "article" (attr :id))))))) ;;getting post id list
      ,@body))
 
+(defmacro check-page (url &rest body)
+  `(if ,url
+       (with-page-body ,url
+	 (with-posts page-body
+	   ,@body))
+       (format t "~A needs first argument to be an url.~%" (uiop:argv0))))
+
 (defun main ()
   (let ((url (car (uiop:command-line-arguments))))
-    (if url
-	(with-page-body url
-	  (with-posts page-body
-	    (mapc #'(lambda (p) (princ (funcall p))) posts)))
-	(format t "~A needs first argument to be an url.~%" (uiop:argv0)))))
+    (check-page url
+		(mapc #'(lambda (p) (princ (funcall p))) posts))))
