@@ -4,9 +4,17 @@
 
 (in-package :xf-scraper)
 
+(defmacro with-page-body (url &rest body)
+  (let ((request (gensym)))
+    `(let* ((,request (dex:get ,url)) (page-body (lquery:$ (initialize ,request))))
+       ,@body)))
+
+(defun remove-whitespace (str)
+  (string-trim '(#\Space #\Newline #\Backspace #\Tab #\Linefeed #\Page #\Return #\Rubout) str))
+
 (defun make-post (author post)
   (let ((post-author author)
-	(post-content (string-trim '(#\Space #\Newline #\Backspace #\Tab #\Linefeed #\Page #\Return #\Rubout) post)))
+	(post-content (remove-whitespace post)))
     (values
      (lambda () (format nil "User: ~A~%~%~A~%----------~%" post-author post-content))
      (lambda () post-author)
@@ -15,10 +23,10 @@
 (defun main ()
   (let ((url (car (uiop:command-line-arguments))))
     (if url
-	(let* ((request (dex:get url)) (processed-content (lquery:$ (initialize request))))
+	(with-page-body url
 	  (mapc #'(lambda (p) (princ (funcall p))) ;;printing post
 		(map 'list #'(lambda (a p) (make-post a p)) ;;creating post list
-		     (remove-if #'null (lquery:$ processed-content "article" (attr :data-author))) ;;getting author list
+		     (remove-if #'null (lquery:$ page-body "article" (attr :data-author))) ;;getting author list
 		     (map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) ;;getting post content list
-			  (remove-if #'null (lquery:$ processed-content "article" (attr :id))))))) ;;getting post id list
+			  (remove-if #'null (lquery:$ page-body "article" (attr :id))))))) ;;getting post id list
 	(format t "~A needs first argument to be an url.~%" (uiop:argv0)))))
