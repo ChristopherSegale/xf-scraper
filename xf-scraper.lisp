@@ -20,13 +20,17 @@
      (lambda () post-author)
      (lambda () post-content))))
 
+(defmacro with-posts (pb &rest body)
+  `(let ((posts (map 'list #'(lambda (a p) (make-post a p)) ;;creating post list
+		     (remove-if #'null (lquery:$ ,pb "article" (attr :data-author))) ;;getting author list
+		     (map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) ;;getting post content list
+			  (remove-if #'null (lquery:$ ,pb "article" (attr :id))))))) ;;getting post id list
+     ,@body))
+
 (defun main ()
   (let ((url (car (uiop:command-line-arguments))))
     (if url
 	(with-page-body url
-	  (mapc #'(lambda (p) (princ (funcall p))) ;;printing post
-		(map 'list #'(lambda (a p) (make-post a p)) ;;creating post list
-		     (remove-if #'null (lquery:$ page-body "article" (attr :data-author))) ;;getting author list
-		     (map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) ;;getting post content list
-			  (remove-if #'null (lquery:$ page-body "article" (attr :id))))))) ;;getting post id list
+	  (with-posts page-body
+	    (mapc #'(lambda (p) (princ (funcall p))) posts)))
 	(format t "~A needs first argument to be an url.~%" (uiop:argv0)))))
