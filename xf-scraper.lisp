@@ -36,4 +36,4 @@
 
 (defun main ()
   (check-page (car (uiop:command-line-arguments))
-		(mapc #'(lambda (p) (princ (funcall p))) posts)))
+    (mapc #'(lambda (p) (princ (funcall p))) posts)))
