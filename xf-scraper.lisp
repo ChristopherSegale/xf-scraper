@@ -21,7 +21,7 @@
      (lambda () post-content))))
 
 (defmacro with-posts (pb &body body)
-  `(let ((posts (map 'list #'(lambda (a p) (make-post a p)) ;;creating post list
+  `(let ((posts (map 'list #'make-post ;;creating post list
 		     (remove-if #'null (lquery:$ ,pb "article" (attr :data-author))) ;;getting author list
 		     (map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) ;;getting post content list
 			  (remove-if #'null (lquery:$ ,pb "article" (attr :id))))))) ;;getting post id list
