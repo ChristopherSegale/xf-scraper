@@ -12,8 +12,6 @@
   (let ((request (dex:get url)))
     (lquery:$ (initialize request))))
 
-(declaim (inline remove-whitespace))
-
 (defun remove-whitespace (str)
   "Remove whitespace from beginning and end of string."
   (string-trim '(#\Space #\Newline #\Backspace #\Tab #\Linefeed #\Page #\Return #\Rubout) str))
@@ -29,10 +27,8 @@
 
 (defmacro with-gensyms (vars &body body)
   "Binds a list of variables with gensym values."
-  (flet ((get-bind (va)
-	   (mapcar #'(lambda (v) `(,v (gensym))) va)))
-	 `(let (,@(get-bind vars))
-	    ,@body)))
+  `(let ,(mapcar #'(lambda (v) `(,v (gensym))) vars)
+     ,@body))
 
 (defmacro with-posts (pb &body body)
   "Anaphoric macro which automatically uses the 'posts symbol to hold a post list."
