@@ -20,10 +20,11 @@
   "Returns a function which prints the contents of a post."
   (let ((post-author author)
 	(post-content (remove-whitespace post)))
-    (values
-     (lambda () (format nil "User: ~A~%~%~A~%----------~%" post-author post-content))
-     (lambda () post-author)
-     (lambda () post-content))))
+   (lambda ()
+     (values
+      (format nil "User: ~A~%~%~A~%----------~%" post-author post-content)
+      post-author
+      post-content))))
 
 (defmacro with-gensyms (vars &body body)
   "Binds a list of variables with gensym values."
