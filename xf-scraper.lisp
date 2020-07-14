@@ -9,8 +9,7 @@
 
 (defun get-page (url)
   "Get database which the posts are pulled from."
-  (let ((request (dex:get url)))
-    (lquery:$ (initialize request))))
+  (lquery:$ (initialize (dex:get url))))
 
 (defun remove-whitespace (str)
   "Remove whitespace from beginning and end of string."
