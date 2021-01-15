@@ -4,8 +4,7 @@
 
 (in-package :xf-scraper)
 
-(declaim (inline get-page)
-	 (inline remove-whitespace))
+(declaim (inline remove-whitespace print-page))
 
 (defun get-page (url)
   "Get database which the posts are pulled from."
@@ -25,30 +24,26 @@
       post-author
       post-content))))
 
-(defmacro with-gensyms (vars &body body)
-  "Binds a list of variables with gensym values."
-  `(let ,(mapcar #'(lambda (v) `(,v (gensym))) vars)
-     ,@body))
+(defun get-posts (page)
+  "Get a list of posts."
+  (map 'list #'make-post ;;creating post list
+       (remove-if #'null (lquery:$ page "article" (attr :data-author))) ;;getting author list
+       (map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) ;;getting post content list
+	    (remove-if #'null (lquery:$ page "article" (attr :id)))))) ;;getting post id list
 
-(defmacro with-posts (pb &body body)
-  "Anaphoric macro which automatically uses the 'posts symbol to hold a post list."
-  (with-gensyms (page)
-    `(let* ((,page ,pb)
-	    (posts (map 'list #'make-post ;;creating post list
-			(remove-if #'null (lquery:$ ,page "article" (attr :data-author))) ;;getting author list
-			(map 'list #'(lambda (p) (elt (lquery:$ (inline (concatenate 'string "#" p)) "article" (text)) 0)) ;;getting post content list
-			     (remove-if #'null (lquery:$ ,page "article" (attr :id))))))) ;;getting post id list
-       ,@body)))
+(defun print-page (page)
+  "Print each post from a page."
+  (dolist (post page)
+    (princ (funcall post))))
 
-(defmacro check-page (url &body body)
-  "Wraps the with-posts macro in a conditional which checks if a url is given"
-  (with-gensyms (link)
-    `(let ((,link ,url))
-       (if ,link
-	   (with-posts (get-page ,link)
-	     ,@body)
-       (format t "~A needs first argument to be an url.~%" (uiop:argv0))))))
-
+(defmacro with-page-check ((url) &body body)
+  "Wraps the with-posts macro in a conditional which checks if a url is given while also storing the url in a symbol called 'link."
+  `(let ((link ,url))
+     (if link
+	 (progn
+	   ,@body)
+	 (format t "~A needs first argument to be an url.~%" (uiop:argv0)))))
+  
 (defun main ()
-  (check-page (car (uiop:command-line-arguments))
-    (mapc #'(lambda (p) (princ (funcall p))) posts)))
+  (with-page-check ((car (uiop:command-line-arguments)))
+    (print-page (get-posts (get-page link)))))

@@ -13,6 +13,8 @@ BUILDFLAGS=--no-sysinit --no-userinit --non-interactive \
 	   --eval '(asdf:load-system :uiop)' \
 	   --eval '(load "xf-scraper.asd")' \
 	   --eval '(asdf:make :xf-scraper)'
+CACHE=~/.cache/common-lisp/sbcl-$(shell sbcl --version | cut -d ' ' -f 2)-linux-x64$(shell pwd)
+RM=rm -rf
 
 all: $(BIN)
 
@@ -23,7 +25,7 @@ $(BUNDLE):
 	$(LISP) $(BNFLAGS)
 
 clean_all:
-	rm -rf $(BIN) $(BUNDLE)
+	rm -rf $(BIN) $(BUNDLE) $(CACHE)
 
 clean:
-	rm -f $(BIN)
+	rm -f $(BIN) $(CACHE)/*.fasl
