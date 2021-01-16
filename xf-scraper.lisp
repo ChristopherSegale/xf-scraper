@@ -37,7 +37,7 @@
     (princ (funcall post))))
 
 (defmacro with-page-check ((url) &body body)
-  "Wraps the with-posts macro in a conditional which checks if a url is given while also storing the url in a symbol called 'link."
+  "Checks if a url is given while also storing the url in a symbol called 'link."
   `(let ((link ,url))
      (if link
 	 (progn
